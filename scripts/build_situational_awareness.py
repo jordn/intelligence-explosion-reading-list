@@ -67,42 +67,54 @@ def fetch(url: str) -> bytes:
         return r.read()
 
 
+_PIL_FMT_TO_EXT = {"JPEG": ".jpg", "PNG": ".png", "GIF": ".png", "WEBP": ".png", "BMP": ".png", "TIFF": ".jpg"}
+
+
 def fetch_image(url: str, img_dir: Path) -> str:
-    """Fetch image, normalizing problematic formats (GIF→PNG first frame, WebP→PNG)
-    so Kindle's e-ink renderer doesn't choke or crash. Animated GIFs in particular
-    have caused 'page cannot be displayed' crashes mid-chapter."""
+    """Fetch image and re-encode through Pillow so we always get a clean
+    PNG/JPEG with a correct extension. This fixes:
+      - extensionless URLs (Google CDN) producing files Calibre treats as
+        'extensionless' and EPUB validators flag as corrupted
+      - animated GIFs / WebP that crash Kindle's e-ink renderer
+      - mismatched content-type vs filename
+    """
+    from io import BytesIO
+    from PIL import Image
+
     parsed = urllib.parse.urlparse(url)
-    name = os.path.basename(parsed.path) or "img"
+    raw_name = os.path.basename(parsed.path) or "img"
+    # Strip any existing extension and any junk chars in the stem
+    stem = re.sub(r"[^A-Za-z0-9_-]", "_", os.path.splitext(raw_name)[0])[:60] or "img"
     prefix = hashlib.md5(url.encode()).hexdigest()[:6]
 
-    ext = os.path.splitext(name)[1].lower()
-    if ext in (".gif", ".webp"):
-        stem = os.path.splitext(name)[0]
-        safe = f"{prefix}_{stem}.png"
-    else:
-        safe = f"{prefix}_{name}"
+    # Probe existing cache by prefix-stem (extension may vary)
+    for existing in img_dir.glob(f"{prefix}_{stem}.*"):
+        return f"images/{existing.name}"
 
-    local = img_dir / safe
-    if not local.exists():
-        try:
-            data = fetch(url)
-            if ext in (".gif", ".webp"):
-                from io import BytesIO
-                from PIL import Image
-                im = Image.open(BytesIO(data))
-                # First frame for animated formats
-                if getattr(im, "is_animated", False):
-                    im.seek(0)
-                if im.mode not in ("RGB", "RGBA"):
-                    im = im.convert("RGBA")
-                im.save(local, format="PNG", optimize=True)
-                print(f"    converted {ext} → PNG: {name}")
-            else:
-                local.write_bytes(data)
-        except Exception as e:
-            print(f"  ! image failed {url}: {e}")
-            return url
-    return f"images/{safe}"
+    try:
+        data = fetch(url)
+        im = Image.open(BytesIO(data))
+        if getattr(im, "is_animated", False):
+            im.seek(0)
+        fmt = (im.format or "PNG").upper()
+        if fmt == "JPEG" and im.mode not in ("RGB", "L"):
+            im = im.convert("RGB")
+        elif fmt != "JPEG" and im.mode not in ("RGB", "RGBA", "L"):
+            im = im.convert("RGBA")
+        out_ext = _PIL_FMT_TO_EXT.get(fmt, ".png")
+        out_fmt = "JPEG" if out_ext == ".jpg" else "PNG"
+        safe = f"{prefix}_{stem}{out_ext}"
+        local = img_dir / safe
+        save_kwargs = {"optimize": True}
+        if out_fmt == "JPEG":
+            save_kwargs["quality"] = 85
+        im.save(local, format=out_fmt, **save_kwargs)
+        if fmt in ("GIF", "WEBP"):
+            print(f"    re-encoded {fmt} → {out_fmt}: {raw_name}")
+        return f"images/{safe}"
+    except Exception as e:
+        print(f"  ! image failed {url}: {e}")
+        return url
 
 
 def rewrite_link(href: str, current_anchor: str) -> str:
@@ -135,14 +147,37 @@ def clean_chapter(html: str, anchor: str, img_dir: Path) -> str:
         tag.decompose()
     junk = re.compile(
         r"sharedaddy|jp-relatedposts|wp-block-buttons|nav-links|comments|widget|"
-        r"ez-toc|wp-block-spacer|eztoc-hide",
+        r"ez-toc|wp-block-spacer|eztoc-hide|"
+        r"sp-eap-accordion|sp-ea-|ea-header|ea-body|ea-icon",  # WP accordion plugin
         re.I,
     )
     for t in article.find_all(class_=junk):
         t.decompose()
+    # Same for id-based accordion containers
+    for t in article.find_all(id=re.compile(r"sp-ea|sp-eap-accordion", re.I)):
+        t.decompose()
     # Also kill the per-chapter <nav> ez-toc widgets entirely
     for n in article.find_all("nav"):
         n.decompose()
+    # Repair invalid block-inside-inline nesting that breaks XHTML validation:
+    # If a <div> appears inside a <p>/<sup>/<span>, lift the <div> out by
+    # unwrapping the inline parent. We iterate until stable.
+    inline_parents = ("p", "sup", "sub", "span", "em", "strong", "b", "i", "a")
+    for _ in range(5):
+        changed = False
+        for div in list(article.find_all("div")):
+            parent = div.parent
+            if parent is None or parent is article:
+                continue
+            if parent.name in inline_parents:
+                parent.unwrap()
+                changed = True
+        if not changed:
+            break
+    # Drop empty paragraphs left behind from WP comment markers
+    for p in list(article.find_all("p")):
+        if not p.get_text(strip=True) and not p.find(["img", "br"]):
+            p.decompose()
 
     for img in article.find_all("img"):
         src = img.get("src") or img.get("data-src") or img.get("data-lazy-src")
