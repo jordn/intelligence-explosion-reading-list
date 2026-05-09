@@ -107,11 +107,19 @@ def clean_chapter(html: str, anchor: str, img_dir: Path) -> str:
     if article is None:
         raise RuntimeError("no .entry-content found in page")
 
-    for tag in article.find_all(["script", "style", "noscript", "form", "iframe"]):
+    # Strip elements Kindle's renderer chokes on or that are page chrome
+    for tag in article.find_all(["script", "style", "noscript", "form", "iframe", "svg"]):
         tag.decompose()
-    junk = re.compile(r"sharedaddy|jp-relatedposts|wp-block-buttons|nav-links|comments|widget", re.I)
+    junk = re.compile(
+        r"sharedaddy|jp-relatedposts|wp-block-buttons|nav-links|comments|widget|"
+        r"ez-toc|wp-block-spacer|eztoc-hide",
+        re.I,
+    )
     for t in article.find_all(class_=junk):
         t.decompose()
+    # Also kill the per-chapter <nav> ez-toc widgets entirely
+    for n in article.find_all("nav"):
+        n.decompose()
 
     for img in article.find_all("img"):
         src = img.get("src") or img.get("data-src") or img.get("data-lazy-src")
