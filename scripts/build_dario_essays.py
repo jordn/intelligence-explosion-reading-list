@@ -18,7 +18,7 @@ Requires:
   - Calibre's ebook-convert on PATH
 
 Usage: python3 scripts/build_dario_essays.py
-Outputs: ./machines-of-loving-grace.epub, ./the-adolescence-of-technology.epub
+Outputs: ./Dario Amodei - Machines of Loving Grace.epub, ./Dario Amodei - The Adolescence of Technology.epub
 """
 
 import hashlib
@@ -44,14 +44,14 @@ ESSAYS = [
         "title": "Machines of Loving Grace",
         "subtitle": "How AI Could Transform the World for the Better",
         "pubdate": "2024-10",
-        "outfile": "machines-of-loving-grace.epub",
+        "outfile": "Dario Amodei - Machines of Loving Grace.epub",
     },
     {
         "url": "https://www.darioamodei.com/essay/the-adolescence-of-technology",
         "title": "The Adolescence of Technology",
         "subtitle": "Confronting and Overcoming the Risks of Powerful AI",
         "pubdate": "2026-01",
-        "outfile": "the-adolescence-of-technology.epub",
+        "outfile": "Dario Amodei - The Adolescence of Technology.epub",
     },
 ]
 

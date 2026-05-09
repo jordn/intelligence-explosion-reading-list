@@ -17,7 +17,7 @@ Requires:
   - Calibre's ebook-convert on PATH
 
 Usage: python3 scripts/build_gwern_essay.py
-Output: ./the-scaling-hypothesis.epub
+Output: ./Gwern Branwen - The Scaling Hypothesis.epub
 """
 
 import hashlib
@@ -176,7 +176,7 @@ def main() -> None:
     combined.write_text(doc, encoding="utf-8")
     print(f"wrote combined.html ({len(doc):,} bytes)")
 
-    out_epub = Path.cwd() / "the-scaling-hypothesis.epub"
+    out_epub = Path.cwd() / "Gwern Branwen - The Scaling Hypothesis.epub"
     cmd = [
         "ebook-convert", str(combined), str(out_epub),
         "--title", TITLE,

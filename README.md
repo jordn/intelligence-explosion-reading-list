@@ -11,7 +11,7 @@ Essays on the intelligence explosion — scaling, takeoff dynamics, alignment, a
 <table>
 <tr>
 <td width="200" valign="top">
-  <a href="./situational-awareness.epub"><img src="covers/situational-awareness.jpg" width="180" alt="Situational Awareness cover" /></a>
+  <a href="./Leopold%20Aschenbrenner%20-%20Situational%20Awareness.epub"><img src="covers/situational-awareness.jpg" width="180" alt="Situational Awareness cover" /></a>
 </td>
 <td valign="top">
 
@@ -21,7 +21,7 @@ Essays on the intelligence explosion — scaling, takeoff dynamics, alignment, a
 
 Nine-part series arguing that AGI by roughly 2027 is plausible from straight-line extrapolation of compute, algorithmic efficiency, and "unhobbling" gains — followed by an intelligence explosion, a national-security race, and the geopolitical implications that follow.
 
-📖 [`situational-awareness.epub`](./situational-awareness.epub) · 27 MB · with all 43 figures, internal cross-chapter links<br>
+📖 [`Leopold Aschenbrenner - Situational Awareness.epub`](./Leopold%20Aschenbrenner%20-%20Situational%20Awareness.epub) · 10 MB · all 43 figures, internal cross-chapter links<br>
 🌐 Read online: [situational-awareness.ai](https://situational-awareness.ai/) · [Official PDF](https://situational-awareness.ai/wp-content/uploads/2024/06/situationalawareness.pdf)
 
 </td>
@@ -33,7 +33,7 @@ Nine-part series arguing that AGI by roughly 2027 is plausible from straight-lin
 <table>
 <tr>
 <td width="200" valign="top">
-  <a href="./machines-of-loving-grace.epub"><img src="covers/machines-of-loving-grace.jpg" width="180" alt="Machines of Loving Grace cover" /></a>
+  <a href="./Dario%20Amodei%20-%20Machines%20of%20Loving%20Grace.epub"><img src="covers/machines-of-loving-grace.jpg" width="180" alt="Machines of Loving Grace cover" /></a>
 </td>
 <td valign="top">
 
@@ -43,7 +43,7 @@ Nine-part series arguing that AGI by roughly 2027 is plausible from straight-lin
 
 The optimistic case. What a post-AGI world looks like if it goes well — biology, neuroscience, economic development, governance, work and meaning. Counterweight to the doom literature.
 
-📖 [`machines-of-loving-grace.epub`](./machines-of-loving-grace.epub) · 72 KB<br>
+📖 [`Dario Amodei - Machines of Loving Grace.epub`](./Dario%20Amodei%20-%20Machines%20of%20Loving%20Grace.epub) · 81 KB<br>
 🌐 Read online: [darioamodei.com/essay/machines-of-loving-grace](https://www.darioamodei.com/essay/machines-of-loving-grace)
 
 </td>
@@ -55,7 +55,7 @@ The optimistic case. What a post-AGI world looks like if it goes well — biolog
 <table>
 <tr>
 <td width="200" valign="top">
-  <a href="./the-adolescence-of-technology.epub"><img src="covers/the-adolescence-of-technology.jpg" width="180" alt="The Adolescence of Technology cover" /></a>
+  <a href="./Dario%20Amodei%20-%20The%20Adolescence%20of%20Technology.epub"><img src="covers/the-adolescence-of-technology.jpg" width="180" alt="The Adolescence of Technology cover" /></a>
 </td>
 <td valign="top">
 
@@ -65,7 +65,7 @@ The optimistic case. What a post-AGI world looks like if it goes well — biolog
 
 The companion piece to *Machines of Loving Grace*. The risks side: national security, economic disruption, threats to democracy, and how civilizations defend against the failure modes of powerful AI.
 
-📖 [`the-adolescence-of-technology.epub`](./the-adolescence-of-technology.epub) · 85 KB<br>
+📖 [`Dario Amodei - The Adolescence of Technology.epub`](./Dario%20Amodei%20-%20The%20Adolescence%20of%20Technology.epub) · 99 KB<br>
 🌐 Read online: [darioamodei.com/essay/the-adolescence-of-technology](https://www.darioamodei.com/essay/the-adolescence-of-technology)
 
 </td>
@@ -77,7 +77,7 @@ The companion piece to *Machines of Loving Grace*. The risks side: national secu
 <table>
 <tr>
 <td width="200" valign="top">
-  <a href="./the-scaling-hypothesis.epub"><img src="covers/the-scaling-hypothesis.png" width="180" alt="The Scaling Hypothesis cover" /></a>
+  <a href="./Gwern%20Branwen%20-%20The%20Scaling%20Hypothesis.epub"><img src="covers/the-scaling-hypothesis.png" width="180" alt="The Scaling Hypothesis cover" /></a>
 </td>
 <td valign="top">
 
@@ -87,7 +87,7 @@ The companion piece to *Machines of Loving Grace*. The risks side: national secu
 
 Pre-GPT-4 essay arguing that scale alone might be sufficient for general intelligence — Sutton's bitter lesson taken to its conclusion, with extensive historical context and a tour through what we already knew when we should have known better.
 
-📖 [`the-scaling-hypothesis.epub`](./the-scaling-hypothesis.epub) · 153 KB<br>
+📖 [`Gwern Branwen - The Scaling Hypothesis.epub`](./Gwern%20Branwen%20-%20The%20Scaling%20Hypothesis.epub) · 1.9 MB<br>
 🌐 Read online: [gwern.net/scaling-hypothesis](https://gwern.net/scaling-hypothesis)
 
 </td>
@@ -98,23 +98,23 @@ Pre-GPT-4 essay arguing that scale alone might be sufficient for general intelli
 
 ## How these were built
 
-All EPUBs are produced from the authors' published HTML/PDF, converted with [Calibre](https://calibre-ebook.com/)'s `ebook-convert`. The Aschenbrenner one scrapes all nine chapter pages from the official site, downloads the 43 figures locally so they're embedded, rewrites cross-chapter links to internal anchors, and merges into a single document before conversion.
+All EPUBs are produced by scraping just the article content from each author's canonical page (with [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/)), caching figures locally (re-encoding GIFs and WebP to static PNGs that Kindle can render), repairing invalid block-inside-inline HTML left by WordPress / Webflow plugins, and converting via [Calibre](https://calibre-ebook.com/)'s `ebook-convert` to EPUB 3.
+
+All four EPUBs validate clean against [`epubcheck`](https://www.w3.org/publishing/epubcheck/) (0 errors, 0 warnings).
 
 ```bash
-pip install beautifulsoup4
+pip install beautifulsoup4 Pillow
 brew install --cask calibre        # macOS, or install Calibre from elsewhere
+brew install epubcheck             # optional, for validation
+
 python3 scripts/build_situational_awareness.py
-```
-
-The other three essays are single-page conversions:
-
-```bash
-ebook-convert essay.html essay.epub --epub-version 3 --title "..." --authors "..."
+python3 scripts/build_dario_essays.py
+python3 scripts/build_gwern_essay.py
 ```
 
 ## Sending to Kindle
 
-Drop any of the `.epub` files on [Send to Kindle](https://www.amazon.com/sendtokindle), or email as an attachment to your `*@kindle.com` address. EPUB 3 is preferred — Send to Kindle's web uploader has been finicky about EPUB 2 in past attempts.
+Drop any of the `.epub` files on [Send to Kindle](https://www.amazon.com/sendtokindle), or email as an attachment to your `*@kindle.com` address. The Send-to-Kindle web uploader has historically been finicky about EPUB 2 and about pages with embedded SVG / animated GIFs / extensionless image refs — every fix here is informed by an `epubcheck` run.
 
 ## Attribution & licensing
 

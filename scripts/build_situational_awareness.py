@@ -15,7 +15,7 @@ Requires:
   - Calibre's ebook-convert on PATH (`brew install --cask calibre`)
 
 Usage: python3 scripts/build_situational_awareness.py
-Output: ./situational-awareness.epub
+Output: ./Leopold Aschenbrenner - Situational Awareness.epub
 """
 
 import hashlib
@@ -200,7 +200,7 @@ def clean_chapter(html: str, anchor: str, img_dir: Path) -> str:
 
 
 def main() -> None:
-    out_epub = Path("situational-awareness.epub").resolve()
+    out_epub = Path("Leopold Aschenbrenner - Situational Awareness.epub").resolve()
     workdir = Path(tempfile.mkdtemp(prefix="sa_build_"))
     img_dir = workdir / "images"
     img_dir.mkdir()
