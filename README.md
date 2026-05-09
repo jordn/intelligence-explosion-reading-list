@@ -1,6 +1,6 @@
-# AI Takeoff Reading List
+# Intelligence Explosion Reading List
 
-A small collection of essays on the intelligence explosion — AI scaling, takeoff dynamics, alignment, and the geopolitics of getting through it. Converted from the authors' freely-published web originals to EPUB for offline / Kindle / e-reader use.
+Essays on the intelligence explosion — scaling, takeoff dynamics, alignment, and the geopolitics of getting through it. Converted from the authors' freely-published web originals to EPUB for offline / Kindle / e-reader use.
 
 > **Read these at the source.** The canonical home for each essay is on its author's own site, linked below. The EPUBs here are mirrors for convenience only — please go to the originals for the latest version, comments, footnotes, and to support the authors directly.
 
