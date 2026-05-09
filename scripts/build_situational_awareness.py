@@ -68,14 +68,37 @@ def fetch(url: str) -> bytes:
 
 
 def fetch_image(url: str, img_dir: Path) -> str:
+    """Fetch image, normalizing problematic formats (GIF→PNG first frame, WebP→PNG)
+    so Kindle's e-ink renderer doesn't choke or crash. Animated GIFs in particular
+    have caused 'page cannot be displayed' crashes mid-chapter."""
     parsed = urllib.parse.urlparse(url)
     name = os.path.basename(parsed.path) or "img"
     prefix = hashlib.md5(url.encode()).hexdigest()[:6]
-    safe = f"{prefix}_{name}"
+
+    ext = os.path.splitext(name)[1].lower()
+    if ext in (".gif", ".webp"):
+        stem = os.path.splitext(name)[0]
+        safe = f"{prefix}_{stem}.png"
+    else:
+        safe = f"{prefix}_{name}"
+
     local = img_dir / safe
     if not local.exists():
         try:
-            local.write_bytes(fetch(url))
+            data = fetch(url)
+            if ext in (".gif", ".webp"):
+                from io import BytesIO
+                from PIL import Image
+                im = Image.open(BytesIO(data))
+                # First frame for animated formats
+                if getattr(im, "is_animated", False):
+                    im.seek(0)
+                if im.mode not in ("RGB", "RGBA"):
+                    im = im.convert("RGBA")
+                im.save(local, format="PNG", optimize=True)
+                print(f"    converted {ext} → PNG: {name}")
+            else:
+                local.write_bytes(data)
         except Exception as e:
             print(f"  ! image failed {url}: {e}")
             return url
